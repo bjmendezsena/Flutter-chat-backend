@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocketServer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+</head>
+
+<body>
+
+    <img src="./403.jpg" style="width: 500px;" class="animate__animated animate__fadeIn" alt="">
+    <div class="wrapper">
+        <h1 class="animate__animated animate__fadeIn">Acceso denegado</h1>
+        <p class="message animate__animated animate__fadeIn">Usted no tiene acceso a esta página</p>
+        <a href="#" class="btn animate__animated animate__fadeIn">Saber más</a>
+        <P class="copyRights animate__animated animate__fadeIn">&copy; 2020 Lwssoft</P>
+    </div>
+    <script src="socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        socket.on('connect', () =>{
+            console.log('Conectado al servidor');
+        });
+
+        socket.on('disconnect', () =>{
+            console.log('Perdimos conexión');
+        });
+
+        socket.on('nuevo-mensaje', (payload) => {
+            console.log('Escuchando: ', payload);
+        });
+        socket.on('active-bands', (payload) => {
+            console.clear();
+            console.table( payload);
+        });
+    </script>
+
+</body>
+
+</html>
