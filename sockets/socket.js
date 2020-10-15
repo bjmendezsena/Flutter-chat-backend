@@ -1,34 +1,37 @@
+const { comprobarJWT } = require('../helpers/jwt');
 const {io} = require('../index');
+const {usuarioConectado, usuarioDesconectado, grabarMensaje} = require('../controllers/socket');
 
 // Mensajes de sockets
-io.on('connection', client => {
+io.on('connection', (client) => {
     console.log('Cliente conectado');    
 
+    const [valido, uid] = comprobarJWT(client.handshake.headers['x-token']);
+
+
+    // Verificar autentificación
+    if( !valido ){ 
+        return client.disconnect();
+    }
+
+    // Cliente autenticado
+    usuarioConectado(uid);
+
+    // Ingresar al usuario a una sala en particular
+    client.join(uid);
+
+    // Escuchar del cliente el mensaje-personal    
+    client.on('mensaje-personal', async(payload) => {
+        //TODO: Grabar mensaje
+        await grabarMensaje(payload);
+        
+        io.to(payload.para).emit('mensaje-personal', payload);
+    });
+
+
     client.on('disconnect' , () => {
+        usuarioDesconectado(uid)
         console.log('Cliente desconectado');
     });
-
-
-    client.on('mensaje', (payload) => {
-        console.log('El cliente envió: ',payload);
-
-        io.emit('mensaje', {admin: 'Nuevo mensaje'});
-    });
-
-    client.on('emitir-mensaje', (payload) => {
-        // io.emit('nuevo-mensaje', payload); //Emite a todos
-        client.broadcast.emit('nuevo-mensaje', payload); //Emite a todos menos el que lo emitió
-    });
-
-    client.on('vote-band', (payload) => {
-    });
-
-    client.on('add-band', (payload) => {
-        const newBand = new Band(payload.name);
-    });
-
-    client.on('delete-band', (payload) => {
-
-
-    });
+  
 });
